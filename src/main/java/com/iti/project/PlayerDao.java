@@ -4,25 +4,25 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayerController {
+public class PlayerDao {
 
     private final DatabaseManager databaseManager;
 
-    public PlayerController(){
+    public PlayerDao(){
         this.databaseManager = new DatabaseManager();
     }
 
-    public List<Player> getFullPlayersData(){
+    public List<PlayerResource> getFullPlayersData(){
         Connection connection = this.databaseManager.getDatabaseConnection();
-        ArrayList<Player> players = new ArrayList<>();
+        ArrayList<PlayerResource> players = new ArrayList<>();
         try {
             //Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             Statement statement = connection.createStatement();
             String sql = "SELECT * FROM players";
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()){
-                players.add( new Player(
-                                resultSet.getInt("ID"),
+                players.add( new PlayerResource(
+                                resultSet.getInt("id"),
                                 resultSet.getString("name"),
                                 resultSet.getString("userName"),
                                 resultSet.getString("password"),
@@ -44,16 +44,16 @@ public class PlayerController {
         }
     }
 
-    public List<Player> getPlayersData(){
+    public List<PlayerResource> getPlayersData(){
         Connection connection = this.databaseManager.getDatabaseConnection();
-        ArrayList<Player> players = new ArrayList<>();
+        ArrayList<PlayerResource> players = new ArrayList<>();
         try {
             //Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             Statement statement = connection.createStatement();
             String sql = "SELECT * FROM players";
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()){
-                players.add( new Player(
+                players.add( new PlayerResource(
                                 resultSet.getString("userName"),
                                 resultSet.getInt("score")
                         )
@@ -67,22 +67,22 @@ public class PlayerController {
         }
     }
 
-    public int addPlayer(Player player){
+    public int addPlayer(PlayerResource player){
         Connection connection = this.databaseManager.getDatabaseConnection();
         try {
             PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO players (name, username, password, email, gender, avatar," +
-                            " status, score, last_login) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                    "INSERT INTO players (name, username, password, email, gender," +
+                            " status, score, last_login) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
             );
             statement.setString(1, player.getName());
             statement.setString(2, player.getUserName());
             statement.setString(3, player.getPassword());
             statement.setString(4, player.getEmail());
             statement.setString(5, player.getGender());
-            statement.setBlob(6, player.getAvatar());
-            statement.setString(7, player.getStatus());
-            statement.setInt(8, player.getScore());
-            statement.setDate(9, player.getLastLogin());
+            //statement.setBlob(6, player.getAvatar());
+            statement.setString(6, player.getStatus());
+            statement.setInt(7, player.getScore());
+            statement.setDate(8, player.getLastLogin());
 
             int res = statement.executeUpdate();
             connection.close();
@@ -93,20 +93,20 @@ public class PlayerController {
         }
     }
 
-    public Player getPlayer(String userName, String password){
+    public PlayerResource getPlayer(String userName){
         Connection connection = this.databaseManager.getDatabaseConnection();
         PreparedStatement statement = null;
-        Player player = null;
+        PlayerResource player = null;
         try {
-            statement = connection.prepareStatement("SELECT * FROM players WHERE userName = ? AND password = ?");
+            statement = connection.prepareStatement("SELECT * FROM players WHERE userName = ?");
             statement.setString(1, userName);
-            statement.setString(2, password);
+            //statement.setString(2, password);
             ResultSet resultSet = statement.executeQuery(); // userName is unique so only one result is returned
             if(!resultSet.next()) {   // User not found
                 return null;
             }
-            player = new Player(
-                    resultSet.getInt("ID"),
+            player = new PlayerResource(
+                    resultSet.getInt("id"),
                     resultSet.getString("name"),
                     resultSet.getString("userName"),
                     resultSet.getString("password"),
@@ -126,7 +126,7 @@ public class PlayerController {
         }
     }
 
-    public boolean verifyFields(Player player)
+    public boolean verifyFields(PlayerResource player)
     {
         // check empty fields
         if(player.getName().trim().equals("") || player.getUserName().trim().equals("") ||

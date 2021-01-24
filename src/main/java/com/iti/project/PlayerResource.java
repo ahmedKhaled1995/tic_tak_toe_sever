@@ -5,7 +5,7 @@ import org.json.simple.JSONObject;
 import java.sql.Blob;
 import java.sql.Date;
 
-public class Player {
+public class PlayerResource {
 
     private int id;
     private String name;
@@ -18,7 +18,17 @@ public class Player {
     private int score;
     private Date lastLogin;
 
-    public Player(){
+    /** Temporary constructor, remove in final version*/
+    public PlayerResource(String userName, String password){
+        this();
+        this.name = "name";  // not unique
+        this.email = this.userName + "." + this.userName +"@test.com"; //unique
+        this.gender = "M/F";
+        this.userName = userName;   // unique
+        this.password = password;
+    }
+
+    public PlayerResource(){
         this.id = -1;
         this.name = null;
         this.userName = null;
@@ -27,20 +37,20 @@ public class Player {
         this.gender = null;
         this.status = null;
         this.avatar = null;
-        this.score = -1;
+        this.score = 0;
         this.lastLogin = null;
     }
 
     // This will be send to other clients
-    public Player(String userName, int score){
+    public PlayerResource(String userName, int score){
         this.userName = userName;
         this.score = score;
         this.status = "Offline";
     }
 
     // This will be stored on the server
-    public Player(int id, String name, String userName, String password,
-                  String email, String gender, String status,  Blob avatar, int score, Date lastLogin){
+    public PlayerResource(int id, String name, String userName, String password,
+                          String email, String gender, String status, Blob avatar, int score, Date lastLogin){
         this.id = id;
         this.name = name;
         this.userName = userName;
@@ -133,8 +143,8 @@ public class Player {
         this.lastLogin = lastLogin;
     }
 
-    public Player getPlayerToSendToClient(){
-        return new Player(this.userName, this.score);
+    public PlayerResource getPlayerToSendToClient(){
+        return new PlayerResource(this.userName, this.score);
     }
 
     public JSONObject toJson(){

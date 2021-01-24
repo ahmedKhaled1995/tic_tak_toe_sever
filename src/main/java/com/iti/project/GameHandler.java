@@ -23,10 +23,11 @@ public class GameHandler {
     // Json object has two keys 'gameId' and 'opponentName'
     private static final HashMap<String, JSONObject> USERS_IN_GAME = new HashMap<>();
     private static final HashMap<String, GameHandler> NAME_SOCKET_MAP = new HashMap<>();
-    private static final PlayerController PLAYER_CONTROLLER =  new PlayerController();
+    private static final PlayerDao PLAYER_DAO =  new PlayerDao();
+    private static final GameDao GAME_DAO = new GameDao();
 
     private Socket currentSocket;
-    private Player player;
+    private PlayerResource player;
     private DataInputStream dis;
     private PrintStream ps;
 
@@ -60,10 +61,10 @@ public class GameHandler {
         if(this.player != null){  // player whi left was logged in
             NAME_SOCKET_MAP.remove(this.player.getUserName());
             logger.info("Closed Connection user name: " + this.player.getUserName());
+            logger.info("Connection count before closing connection: " + NAME_SOCKET_MAP.size());
         }else{
             logger.info("Closed Connection user who is not logged in");
         }
-        logger.info("Connection count before closing connection: " + NAME_SOCKET_MAP.size());
         logger.info("Connection count after closing connection: " + NAME_SOCKET_MAP.size());
         handleClientLeaving();
     }
@@ -107,6 +108,10 @@ public class GameHandler {
             String name = replyJson.get("userName").toString();
             String password = replyJson.get("password").toString();
             handleLogin(name, password);
+        }else if(type.equals("signup")){
+            String name = replyJson.get("userName").toString();
+            String password = replyJson.get("password").toString();
+            handleSignUp(name, password);
         }else if(type.equals("getUsers")){
             handleSendAllUsers();
         }else if(type.equals("tryGameWithOpponent")){
@@ -157,6 +162,7 @@ public class GameHandler {
             playerToWaitJson.replace("tie", "true");
             playerToPlay.ps.println(playerToPlayJson.toJSONString());
             playerToWait.ps.println(playerToWaitJson.toJSONString());
+            saveGame(game);
             removeGame(game);
         }else if(possibleWinner != null){  // Some one has won
             GameHandler winner = NAME_SOCKET_MAP.get(game.getWinner());
@@ -174,6 +180,7 @@ public class GameHandler {
             loserJson.replace("lost", "true");
             winner.ps.println(winnerJson.toJSONString());
             loser.ps.println(loserJson.toJSONString());
+            saveGame(game);
             removeGame(game);
         }
     }
@@ -182,7 +189,7 @@ public class GameHandler {
     private void handleSendAllUsers(){
         JSONObject sendToClient = new JSONObject();
         JSONArray allUsers = new JSONArray();
-        for(Player player : PLAYER_CONTROLLER.getPlayersData()){
+        for(PlayerResource player : PLAYER_DAO.getPlayersData()){
             // Checking if user is online
             for (Map.Entry<String,GameHandler> entry : NAME_SOCKET_MAP.entrySet()){
                 if(player.getUserName().equals(entry.getKey())){
@@ -197,7 +204,7 @@ public class GameHandler {
     }
 
     /** Used to notify other clients when a new client connects */
-    private void signalOnlineUser(Player loggedInUser){
+    private void signalOnlineUser(PlayerResource loggedInUser){
         JSONObject sendToClient = new JSONObject();
         sendToClient.put("type", "newLoggedInUser");
         sendToClient.put("loggedInUser", loggedInUser.toJson());
@@ -205,7 +212,7 @@ public class GameHandler {
     }
 
     /** Used to notify other clients when a client leaves */
-    private void signalUserLogout(Player loggedOutUser){
+    private void signalUserLogout(PlayerResource loggedOutUser){
         JSONObject sendToClient = new JSONObject();
         sendToClient.put("type", "loggedOutUser");
         sendToClient.put("loggedOutUser", this.player.toJson());
@@ -217,20 +224,62 @@ public class GameHandler {
     private void handleLogin(String userName, String password){
         JSONObject object = new JSONObject();
         boolean success = true;
-        Player player = PLAYER_CONTROLLER.getPlayer(userName, password);
-        if(player == null){  // login failed
-            success = false;
-        }else{
-            this.player = player;
-            NAME_SOCKET_MAP.put(this.player.getUserName(), this);
+        PlayerResource player = PLAYER_DAO.getPlayer(userName);
+        // Checking if user is already signed in or invalid user name or invalid password
+        try {
+            if(NAME_SOCKET_MAP.get(userName) != null || player == null ||
+                    !Password.check(password, player.getPassword())){
+                success = false;
+                object.put("userName", null);
+                object.put("score", -1);
+            }else{  // User can successfully logged in
+                this.player = player;
+                NAME_SOCKET_MAP.put(this.player.getUserName(), this);
+                object.put("userName", player.getUserName());
+                object.put("score", this.player.getScore());
+                // Notifying other clients a new player has joined
+                signalOnlineUser(this.player.getPlayerToSendToClient());
+                logger.info("{} has logged in", this.player.getUserName());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         object.put("type", "loginResult");
         object.put("success", success);
-        object.put("userName", player.getUserName());
-        object.put("score", this.player.getScore());
-        // Notifying other clients a new player has joined
-        signalOnlineUser(this.player.getPlayerToSendToClient());
-        logger.info("{} has logged in", this.player.getUserName());
+        // Sending response to the user
+        this.ps.println(object.toJSONString());
+    }
+
+    private void handleSignUp(String userName, String password) {
+        JSONObject object = new JSONObject();
+        boolean success = true;
+        PlayerResource player = PLAYER_DAO.getPlayer(userName);
+        // Checking if user already exists
+        if(player != null){ // user already exists
+            success = false;
+            object.put("userName", null);
+            object.put("score", -1);
+        }else{  // User can sign up
+            String hashedPassword = null;
+            try {
+                hashedPassword = Password.getSaltedHash(password);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            player = new PlayerResource(userName, hashedPassword);
+            int playerAdded = PLAYER_DAO.addPlayer(player);
+            if(playerAdded > 0){  // player added successfully
+                this.player = player;
+                NAME_SOCKET_MAP.put(this.player.getUserName(), this);
+                object.put("userName", player.getUserName());
+                object.put("score", this.player.getScore());
+                // Notifying other clients a new player has joined
+                signalOnlineUser(this.player.getPlayerToSendToClient());
+                logger.info("{} has logged in", this.player.getUserName());
+            }
+        }
+        object.put("type", "signupResult");
+        object.put("success", success);
         // Sending response to the user
         this.ps.println(object.toJSONString());
     }
@@ -261,6 +310,16 @@ public class GameHandler {
         GAME_MAP.remove(game.getGameId());
         USERS_IN_GAME.remove(game.getPlayerOne());
         USERS_IN_GAME.remove(game.getPlayerTwo());
+    }
+
+    private void saveGame(Game game){
+        JSONObject board = game.getGameBoard();
+        JSONObject gameStatus = game.getStatus();
+        GameResource gameResource = new GameResource(0, game.getPlayerOne(),
+                game.getPlayerTwo(), board.toJSONString(), gameStatus.toJSONString());
+        GAME_DAO.addGame(gameResource);
+        logger.info(board.toJSONString());
+        logger.info(gameStatus.toJSONString());
     }
 
     /** Handles game rejection, note if opponent is null, that means game was rejected

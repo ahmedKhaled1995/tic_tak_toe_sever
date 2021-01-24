@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="GameServer" />
         <module name="mk_game_server" />
+        <module name="tic_tak_toe_sever" />
       </profile>
     </annotationProcessing>
   </component>
