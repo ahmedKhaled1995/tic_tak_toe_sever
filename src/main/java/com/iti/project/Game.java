@@ -15,7 +15,7 @@ public class Game {
 
 
     private final int[] board;  // game board
-    private final JSONObject gameValues;
+    private final JSONObject gameValues;  // Used to store the game
 
     public Game(int gameId, String playerOne, String playerTwo){
         this.gameId = gameId;

@@ -6,14 +6,8 @@ import java.util.List;
 
 public class GameDao {
 
-    private final DatabaseManager databaseManager;
-
-    public GameDao(){
-        this.databaseManager = new DatabaseManager();
-    }
-
     public List<GameResource> getPlayerGames(String playerName){
-        Connection connection = this.databaseManager.getDatabaseConnection();
+        Connection connection = DatabaseManager.getConnection();
         List<GameResource> players = new ArrayList<>();
         try {
             PreparedStatement statement = connection.prepareStatement(
@@ -31,7 +25,7 @@ public class GameDao {
                         )
                 );
             }
-            connection.close();
+            //connection.close();
             return players;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -40,7 +34,7 @@ public class GameDao {
     }
 
     public int addGame(GameResource game){
-        Connection connection = this.databaseManager.getDatabaseConnection();
+        Connection connection = DatabaseManager.getConnection();
         try {
             PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO Game (player_one, player_two, board, state)" +
@@ -51,7 +45,7 @@ public class GameDao {
             statement.setString(3, game.getBoard());
             statement.setString(4, game.getState());
             int res = statement.executeUpdate();
-            connection.close();
+            //connection.close();
             return res;
         } catch (SQLException e) {
             e.printStackTrace();

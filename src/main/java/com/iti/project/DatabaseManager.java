@@ -4,14 +4,25 @@ import java.sql.*;
 
 public class DatabaseManager {
 
-    public Connection getDatabaseConnection () {
-        Connection connection = null;
-        String databaseUrl = "jdbc:sqlite:db\\database.db";
+    private static final String DATABASE_URL = "jdbc:sqlite:db\\database.db";
+    private static Connection CONNECTION;
+
+    public static Connection getConnection(){
+        if(CONNECTION == null){
+            try {
+                CONNECTION = DriverManager.getConnection(DATABASE_URL);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return CONNECTION;
+    }
+
+    public static void closeConnection(){
         try {
-            connection = DriverManager.getConnection(databaseUrl);
+            CONNECTION.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return connection;
     }
 }

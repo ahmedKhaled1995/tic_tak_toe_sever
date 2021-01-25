@@ -200,6 +200,8 @@ public class GameHandler {
         this.ps.println(object.toJSONString());
     }
 
+    /** Used to notify the client attempting to signup if the signup was successful or not,
+     also it signals the other clients the a new user has joined */
     private void handleSignUp(String userName, String password) {
         JSONObject object = new JSONObject();
         boolean success = true;
@@ -234,6 +236,7 @@ public class GameHandler {
         this.ps.println(object.toJSONString());
     }
 
+    /** Used to logout a user */
     private void handleLogOut(){
         // Note how we don't close the input or the output stream and how we don't close the client socket
         NAME_SOCKET_MAP.remove(this.player.getUserName());
@@ -269,6 +272,7 @@ public class GameHandler {
         USERS_IN_GAME.remove(game.getPlayerTwo());
     }
 
+    /** Used to save a game to the database */
     private void saveGame(Game game){
         JSONObject board = game.getGameBoard();
         JSONObject gameStatus = game.getStatus();
@@ -298,7 +302,7 @@ public class GameHandler {
         }
     }
 
-    /** Used to notify the client that some one wants to play with him*/
+    /** Used to notify the client that some one wants to play with them*/
     private void askOpponentForGame(String opponentName) {
         GameHandler opponentClient = NAME_SOCKET_MAP.get(opponentName);
         JSONObject sendToOpponent = new JSONObject();
@@ -385,11 +389,11 @@ public class GameHandler {
             }
             winnerJson.replace("won", "true");
             loserJson.replace("lost", "true");
-            // Updating winner score
-            PLAYER_DAO.updateScore(game.getWinner());
             // Sending response to the clients
             winner.ps.println(winnerJson.toJSONString());
             loser.ps.println(loserJson.toJSONString());
+            // Updating winner score
+            PLAYER_DAO.updateScore(game.getWinner());
             // Saving and removing the game
             saveGame(game);
             removeGame(game);

@@ -21,11 +21,11 @@ public class PlayerResource {
     /** Temporary constructor, remove in final version*/
     public PlayerResource(String userName, String password){
         this();
-        this.name = "name";  // not unique
-        this.email = this.userName + "." + this.userName +"@test.com"; //unique
-        this.gender = "M/F";
         this.userName = userName;   // unique
         this.password = password;
+        this.name = "name";  // not unique
+        this.email = this.userName +"@test.com"; //unique
+        this.gender = "M/F";
     }
 
     public PlayerResource(){

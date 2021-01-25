@@ -8,14 +8,8 @@ public class PlayerDao {
 
     public static final int BONUS = 10;
 
-    private final DatabaseManager databaseManager;
-
-    public PlayerDao(){
-        this.databaseManager = new DatabaseManager();
-    }
-
     public List<PlayerResource> getFullPlayersData(){
-        Connection connection = this.databaseManager.getDatabaseConnection();
+        Connection connection = DatabaseManager.getConnection();
         ArrayList<PlayerResource> players = new ArrayList<>();
         try {
             //Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -38,7 +32,7 @@ public class PlayerDao {
                         )
                 );
             }
-            connection.close();
+            //connection.close();
             return players;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -47,7 +41,7 @@ public class PlayerDao {
     }
 
     public List<PlayerResource> getPlayersData(){
-        Connection connection = this.databaseManager.getDatabaseConnection();
+        Connection connection = DatabaseManager.getConnection();
         ArrayList<PlayerResource> players = new ArrayList<>();
         try {
             //Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -61,7 +55,7 @@ public class PlayerDao {
                         )
                 );
             }
-            connection.close();
+            //connection.close();
             return players;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -70,7 +64,7 @@ public class PlayerDao {
     }
 
     public int addPlayer(PlayerResource player){
-        Connection connection = this.databaseManager.getDatabaseConnection();
+        Connection connection = DatabaseManager.getConnection();
         try {
             PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO players (name, username, password, email, gender," +
@@ -86,9 +80,8 @@ public class PlayerDao {
             statement.setInt(7, player.getScore());
             statement.setDate(8, player.getLastLogin());
 
-            int res = statement.executeUpdate();
-            connection.close();
-            return res;
+            //connection.close();
+            return statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
             return -1;
@@ -96,7 +89,7 @@ public class PlayerDao {
     }
 
     public PlayerResource getPlayer(String userName){
-        Connection connection = this.databaseManager.getDatabaseConnection();
+        Connection connection = DatabaseManager.getConnection();
         PreparedStatement statement = null;
         PlayerResource player = null;
         try {
@@ -120,7 +113,7 @@ public class PlayerDao {
                     resultSet.getInt("score"),
                     resultSet.getDate("last_login")
             );
-        connection.close();
+        //connection.close();
         return player;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -129,7 +122,7 @@ public class PlayerDao {
     }
 
     public int updateScore(String userName){
-        Connection connection = this.databaseManager.getDatabaseConnection();
+        Connection connection = DatabaseManager.getConnection();
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement("UPDATE players SET score = score + ? WHERE userName = ?");
@@ -164,7 +157,7 @@ public class PlayerDao {
         boolean usernameExist = false;
         String queryString = "SELECT * FROM players WHERE userName = ?";
         try {
-            con = this.databaseManager.getDatabaseConnection();
+            con = DatabaseManager.getConnection();
             st = con.prepareStatement(queryString);
             st.setString(1, username);
             resultSet= st.executeQuery();
@@ -172,7 +165,7 @@ public class PlayerDao {
                 usernameExist = true;
                 //JOptionPane.showMessageDialog(null, "This Username is Already Taken, Choose Another One", "Username Failed", 2);
             }
-            con.close();
+            //con.close();
         } catch (Exception ex) {
             //Logger.getLogger(PlayerController.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace();
