@@ -6,6 +6,8 @@ import java.util.List;
 
 public class PlayerDao {
 
+    public static final int BONUS = 10;
+
     private final DatabaseManager databaseManager;
 
     public PlayerDao(){
@@ -123,6 +125,21 @@ public class PlayerDao {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public int updateScore(String userName){
+        Connection connection = this.databaseManager.getDatabaseConnection();
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement("UPDATE players SET score = score + ? WHERE userName = ?");
+            statement.setInt(1, BONUS);
+            statement.setString(2, userName);
+            return statement.executeUpdate(); // userName is unique so only one result is returned
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
         }
     }
 
