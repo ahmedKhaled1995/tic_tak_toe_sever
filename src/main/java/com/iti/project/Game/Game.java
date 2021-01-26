@@ -1,4 +1,4 @@
-package com.iti.project;
+package com.iti.project.Game;
 
 import org.json.simple.JSONObject;
 

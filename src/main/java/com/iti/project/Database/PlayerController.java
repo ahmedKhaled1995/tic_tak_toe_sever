@@ -1,10 +1,10 @@
-package com.iti.project;
+package com.iti.project.Database;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayerDao {
+public class PlayerController {
 
     public static final int BONUS = 10;
 

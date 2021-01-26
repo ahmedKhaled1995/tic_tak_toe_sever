@@ -1,4 +1,4 @@
-package com.iti.project;
+package com.iti.project.Server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package com.iti.project;
+package com.iti.project.Utils;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;

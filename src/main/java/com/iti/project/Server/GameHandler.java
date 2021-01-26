@@ -1,5 +1,11 @@
-package com.iti.project;
+package com.iti.project.Server;
 
+import com.iti.project.Database.GameDao;
+import com.iti.project.Database.GameResource;
+import com.iti.project.Database.PlayerController;
+import com.iti.project.Database.PlayerResource;
+import com.iti.project.Game.Game;
+import com.iti.project.Utils.Password;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -23,7 +29,7 @@ public class GameHandler {
     // Json object has two keys 'gameId' and 'opponentName'
     private static final HashMap<String, JSONObject> USERS_IN_GAME = new HashMap<>();
     private static final HashMap<String, GameHandler> NAME_SOCKET_MAP = new HashMap<>();
-    private static final PlayerDao PLAYER_DAO =  new PlayerDao();
+    private static final PlayerController PLAYER_DAO =  new PlayerController();
     private static final GameDao GAME_DAO = new GameDao();
 
     private Socket currentSocket;
