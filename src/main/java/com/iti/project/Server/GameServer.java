@@ -15,19 +15,22 @@ public class GameServer {
     public static final int PORT = 5000;
 
     private static Logger logger = LoggerFactory.getLogger(GameServer.class);
-    private final AtomicBoolean running = new AtomicBoolean(false);
+    private AtomicBoolean  running = new AtomicBoolean(false);
 
     private Thread listeningToClientsThread;
     private final List<GameHandler> handlers = new ArrayList<>();
 
-    public GameServer() {
+    private ServerSocket serverSocket;
+
+
+    public void startServer(){
         try {
-            ServerSocket serverSocket = new ServerSocket(PORT);
-            logger.info("Server Started on PORT {}", PORT);
-            logger.info("Waiting for clients...");
+            this.serverSocket = new ServerSocket(PORT);
             // Running the thread that will accept clients
             this.listeningToClientsThread = new Thread(()->{
                 this.running.set(true);
+                logger.info("Server Started on PORT {}", PORT);
+                logger.info("Waiting for clients...");
                 while(this.running.get()) {
                     Socket s = null;
                     try {
@@ -36,7 +39,9 @@ public class GameServer {
                         handlers.add(handler);
                         logger.info("Client accepted");
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        //e.printStackTrace();
+                        logger.info("Closing server...");
+                        logger.info("Server closed");
                     }
                 }
             });
@@ -47,7 +52,15 @@ public class GameServer {
         }
     }
 
-    private void stopServer(){
-        this.running.set(false);
+    public void stopServer(){
+        try {
+            this.serverSocket.close();
+            this.running.set(false);
+            for(GameHandler handler : handlers){
+                handler.closeConnection();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

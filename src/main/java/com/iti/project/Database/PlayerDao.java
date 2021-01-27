@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayerController {
+public class PlayerDao {
 
     public static final int BONUS = 10;
 

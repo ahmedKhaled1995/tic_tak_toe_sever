@@ -2,7 +2,7 @@ package com.iti.project.Server;
 
 import com.iti.project.Database.GameDao;
 import com.iti.project.Database.GameResource;
-import com.iti.project.Database.PlayerController;
+import com.iti.project.Database.PlayerDao;
 import com.iti.project.Database.PlayerResource;
 import com.iti.project.Game.Game;
 import com.iti.project.Utils.Password;
@@ -29,7 +29,7 @@ public class GameHandler {
     // Json object has two keys 'gameId' and 'opponentName'
     private static final HashMap<String, JSONObject> USERS_IN_GAME = new HashMap<>();
     private static final HashMap<String, GameHandler> NAME_SOCKET_MAP = new HashMap<>();
-    private static final PlayerController PLAYER_DAO =  new PlayerController();
+    private static final PlayerDao PLAYER_DAO =  new PlayerDao();
     private static final GameDao GAME_DAO = new GameDao();
 
     private Socket currentSocket;
@@ -37,7 +37,7 @@ public class GameHandler {
     private DataInputStream dis;
     private PrintStream ps;
 
-    public GameHandler(Socket cs)  {
+    public GameHandler(Socket cs) {
         try {
             this.currentSocket = cs;
             this.player = null; // Will get initialized when the user successfully login
@@ -56,7 +56,7 @@ public class GameHandler {
     }
 
     /** Used to close connection with the client */
-    private void closeConnection(){
+    public void closeConnection(){
         try {
             this.currentSocket.close();
             this.dis.close();
