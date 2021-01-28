@@ -2,20 +2,17 @@ package com.iti.project;
 
 import com.iti.project.Database.PlayerResource;
 import com.iti.project.Server.GameServer;
+import com.iti.project.UI.PlayerRow;
+import com.iti.project.UI.ViewUpdater;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +26,13 @@ public class EntryPoint extends Application {
     public static final int HEIGHT = 600;
 
     private BorderPane pane;
-    private TableView<PlayerResource> playersList;
+    private TableView<PlayerRow> playersList;
     private Button startButton;
     private Button stopButton;
     private TextArea consoleOutputArea;
 
     private static GameServer gameServer;
+    private static ViewUpdater viewUpdater;
 
     @Override
     public void init(){
@@ -44,7 +42,9 @@ public class EntryPoint extends Application {
         this.playersList.setPadding(new Insets(0, 0, 10, 0));
         this.startButton = new Button("Start");
         this.stopButton = new Button("Stop");
+        this.stopButton.setDisable(true);
         this.consoleOutputArea = new TextArea();
+        this.consoleOutputArea.setEditable(false);
         this.consoleOutputArea.setEditable(false);
         this.consoleOutputArea.setPadding(new Insets(16, 0, 0 , 0));
 
@@ -61,13 +61,27 @@ public class EntryPoint extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        // To ensure program terminates when exit icon (x) is pressed
+        primaryStage.setOnCloseRequest((e)-> {
+            System.exit(0);
+        });
+
+        viewUpdater = new ViewUpdater(playersList, consoleOutputArea);
 
         this.startButton.setOnAction((e)->{
+            viewUpdater.resetConsole();
             startServer();
+            startButton.setDisable(true);
+            stopButton.setDisable(false);
+            viewUpdater.fillTableWithData();
         });
 
         this.stopButton.setOnAction((e)->{
             stopServer();
+            startButton.setDisable(false);
+            stopButton.setDisable(true);
+            viewUpdater.resetTable();
+            viewUpdater.resetConsole();
         });
 
         Scene scene = new Scene(pane, WIDTH, HEIGHT);
@@ -81,6 +95,14 @@ public class EntryPoint extends Application {
         BasicConfigurator.configure();
         gameServer = new GameServer();
         launch(args);
+    }
+
+    public static ViewUpdater getViewUpdater(){
+        return viewUpdater;
+    }
+
+    public static GameServer getGameServer(){
+        return gameServer;
     }
 
     private void startServer(){

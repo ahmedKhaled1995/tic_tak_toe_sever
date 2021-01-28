@@ -4,6 +4,7 @@ import com.iti.project.Database.GameDao;
 import com.iti.project.Database.GameResource;
 import com.iti.project.Database.PlayerDao;
 import com.iti.project.Database.PlayerResource;
+import com.iti.project.EntryPoint;
 import com.iti.project.Game.Game;
 import com.iti.project.Utils.Password;
 import org.json.simple.JSONArray;
@@ -64,14 +65,23 @@ public class GameHandler {
             e.printStackTrace();
         }
         this.ps.close();
-        if(this.player != null){  // player whi left was logged in
+        if(this.player != null){  // player who left was logged in
             NAME_SOCKET_MAP.remove(this.player.getUserName());
+            EntryPoint.getViewUpdater().updateLoggedOutUser(this.player.getUserName());
             logger.info("Closed Connection user name: " + this.player.getUserName());
             logger.info("Connection count before closing connection: " + NAME_SOCKET_MAP.size());
+            EntryPoint.getViewUpdater().updateConsole(logger.getName() +
+                    ": Closed Connection user name: " + this.player.getUserName());
+            EntryPoint.getViewUpdater().updateConsole(logger.getName() +
+                    ": Connection count before closing connection: " + NAME_SOCKET_MAP.size());
         }else{
-            logger.info("Closed Connection user who is not logged in");
+            logger.info("Closed Connection for user who is not logged in");
+            EntryPoint.getViewUpdater().updateConsole(logger.getName() + ": "+
+                    "Closed Connection for user who is not logged in");
         }
         logger.info("Connection count after closing connection: " + NAME_SOCKET_MAP.size());
+        EntryPoint.getViewUpdater().updateConsole(logger.getName() + ": "+
+                "Connection count after closing connection: " + NAME_SOCKET_MAP.size());
         handleClientLeaving();
     }
 
@@ -144,6 +154,13 @@ public class GameHandler {
     /** Used to send all users to the client when the client logs in */
     private void handleSendAllUsers(){
         JSONObject sendToClient = new JSONObject();
+        JSONArray allUsers = GameHandler.getUsers();
+        sendToClient.put("type", "usersList");
+        sendToClient.put("users", allUsers);
+        this.ps.println(sendToClient.toJSONString());
+    }
+
+    protected static JSONArray getUsers(){
         JSONArray allUsers = new JSONArray();
         for(PlayerResource player : PLAYER_DAO.getPlayersData()){
             // Checking if user is online
@@ -154,9 +171,7 @@ public class GameHandler {
             }
             allUsers.add(player.toJson());
         }
-        sendToClient.put("type", "usersList");
-        sendToClient.put("users", allUsers);
-        this.ps.println(sendToClient.toJSONString());
+        return allUsers;
     }
 
     /** Used to notify other clients when a new client connects */
@@ -184,11 +199,12 @@ public class GameHandler {
         // Checking if user is already signed in or invalid user name or invalid password
         try {
             if(NAME_SOCKET_MAP.get(userName) != null || player == null ||
-                    !Password.check(password, player.getPassword())){
+                    !Password.check(password, player.getPassword())){   // failed to log in
                 success = false;
                 object.put("userName", null);
                 object.put("score", -1);
             }else{  // User can successfully logged in
+                EntryPoint.getViewUpdater().updateLoggedInUser(userName);
                 this.player = player;
                 NAME_SOCKET_MAP.put(this.player.getUserName(), this);
                 object.put("userName", player.getUserName());
@@ -196,6 +212,8 @@ public class GameHandler {
                 // Notifying other clients a new player has joined
                 signalOnlineUser(this.player.getPlayerToSendToClient());
                 logger.info("{} has logged in", this.player.getUserName());
+                EntryPoint.getViewUpdater().updateConsole(logger.getName() + ": " +
+                        this.player.getUserName() + " has logged in");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -231,7 +249,8 @@ public class GameHandler {
                 NAME_SOCKET_MAP.put(this.player.getUserName(), this);
                 object.put("userName", player.getUserName());
                 object.put("score", this.player.getScore());
-                // Notifying other clients a new player has joined
+                // Notifying other clients and the server a new player has joined
+                EntryPoint.getViewUpdater().updateSignedUpUser(player.getUserName());
                 signalOnlineUser(this.player.getPlayerToSendToClient());
                 logger.info("{} has logged in", this.player.getUserName());
             }
@@ -247,6 +266,7 @@ public class GameHandler {
         // Note how we don't close the input or the output stream and how we don't close the client socket
         NAME_SOCKET_MAP.remove(this.player.getUserName());
         signalUserLogout(this.player);
+        EntryPoint.getViewUpdater().updateLoggedOutUser(this.player.getUserName());
         this.player = null;
     }
 
@@ -273,6 +293,8 @@ public class GameHandler {
     /** Used to remove a game when it's finished */
     private void removeGame(Game game){
         logger.info("Removed game with id {}", game.getGameId());
+        EntryPoint.getViewUpdater().updateConsole(logger.getName() + ": "+
+                "Removed game with id  " + game.getGameId());
         GAME_MAP.remove(game.getGameId());
         USERS_IN_GAME.remove(game.getPlayerOne());
         USERS_IN_GAME.remove(game.getPlayerTwo());
@@ -285,8 +307,8 @@ public class GameHandler {
         GameResource gameResource = new GameResource(0, game.getPlayerOne(),
                 game.getPlayerTwo(), board.toJSONString(), gameStatus.toJSONString());
         GAME_DAO.addGame(gameResource);
-        logger.info(board.toJSONString());
-        logger.info(gameStatus.toJSONString());
+        //logger.info(board.toJSONString());
+        //logger.info(gameStatus.toJSONString());
     }
 
     /** Handles game rejection, note if opponent is null, that means game was rejected
