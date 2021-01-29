@@ -124,9 +124,12 @@ public class GameHandler {
             String password = replyJson.get("password").toString();
             handleLogin(name, password);
         }else if(type.equals("signup")){
+            String fullName = replyJson.get("name").toString();
             String name = replyJson.get("userName").toString();
             String password = replyJson.get("password").toString();
-            handleSignUp(name, password);
+            String email = replyJson.get("email").toString();
+            String gender = replyJson.get("gender").toString();
+            handleSignUp(fullName, name, password, email, gender);
         }else if(type.equals("logout")){
             this.handleLogOut();
         }else if(type.equals("getUsers")){
@@ -178,7 +181,15 @@ public class GameHandler {
     private void signalOnlineUser(PlayerResource loggedInUser){
         JSONObject sendToClient = new JSONObject();
         sendToClient.put("type", "newLoggedInUser");
-        sendToClient.put("loggedInUser", loggedInUser.toJson());
+        sendToClient.put("loggedInUser", loggedInUser.getUserName());
+        broadCast(sendToClient.toJSONString());
+    }
+
+    /** Used to notify other clients when a new client signs up */
+    private void signalSignedUpUser(PlayerResource signedUpUser){
+        JSONObject sendToClient = new JSONObject();
+        sendToClient.put("type", "newSignedUpUser");
+        sendToClient.put("signedUpUser", signedUpUser.getUserName());
         broadCast(sendToClient.toJSONString());
     }
 
@@ -186,7 +197,7 @@ public class GameHandler {
     private void signalUserLogout(PlayerResource loggedOutUser){
         JSONObject sendToClient = new JSONObject();
         sendToClient.put("type", "loggedOutUser");
-        sendToClient.put("loggedOutUser", this.player.toJson());
+        sendToClient.put("loggedOutUser", this.player.getUserName());
         broadCast(sendToClient.toJSONString());
     }
 
@@ -226,7 +237,7 @@ public class GameHandler {
 
     /** Used to notify the client attempting to signup if the signup was successful or not,
      also it signals the other clients the a new user has joined */
-    private void handleSignUp(String userName, String password) {
+    private void handleSignUp(String fullName, String userName, String password, String email, String gender) {
         JSONObject object = new JSONObject();
         boolean success = true;
         PlayerResource player = PLAYER_DAO.getPlayer(userName);
@@ -242,7 +253,8 @@ public class GameHandler {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            player = new PlayerResource(userName, hashedPassword);
+            player = new PlayerResource(0, fullName, userName, hashedPassword, email,
+                    gender, "Offline", null, 0, null);
             int playerAdded = PLAYER_DAO.addPlayer(player);
             if(playerAdded > 0){  // player added successfully
                 this.player = player;
@@ -251,7 +263,7 @@ public class GameHandler {
                 object.put("score", this.player.getScore());
                 // Notifying other clients and the server a new player has joined
                 EntryPoint.getViewUpdater().updateSignedUpUser(player.getUserName());
-                signalOnlineUser(this.player.getPlayerToSendToClient());
+                signalSignedUpUser(this.player.getPlayerToSendToClient());
                 logger.info("{} has logged in", this.player.getUserName());
             }
         }
@@ -364,10 +376,12 @@ public class GameHandler {
         sendToPlayerOne.put("type", "startGame");
         sendToPlayerOne.put("gameId", gameId);
         sendToPlayerOne.put("opponent", opponent);
+        sendToPlayerOne.put("opponentScore", NAME_SOCKET_MAP.get(opponent).player.getScore());
         sendToPlayerOne.put("myTurn", true);
         sendToPlayerTwo.put("type", "startGame");
         sendToPlayerTwo.put("gameId", gameId);
         sendToPlayerTwo.put("opponent", this.player.getUserName());
+        sendToPlayerTwo.put("opponentScore", this.player.getScore());
         sendToPlayerTwo.put("myTurn", false);
         NAME_SOCKET_MAP.get(newGame.getPlayerOne()).ps.println(sendToPlayerOne.toJSONString());
         NAME_SOCKET_MAP.get(newGame.getPlayerTwo()).ps.println(sendToPlayerTwo.toJSONString());
