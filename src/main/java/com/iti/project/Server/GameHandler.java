@@ -187,6 +187,7 @@ public class GameHandler {
         this.ps.println(sendToClient.toJSONString());
     }
 
+    /** Used to send all users to the server GUI */
     protected static JSONArray getUsers(){
         JSONArray allUsers = new JSONArray();
         for(PlayerResource player : PLAYER_DAO.getPlayersData()){

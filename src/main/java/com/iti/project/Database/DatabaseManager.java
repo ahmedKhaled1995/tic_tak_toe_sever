@@ -8,12 +8,16 @@ public class DatabaseManager {
     private static Connection CONNECTION;
 
     public static Connection getConnection(){
-        if(CONNECTION == null){
-            try {
-                CONNECTION = DriverManager.getConnection(DATABASE_URL);
-            } catch (SQLException e) {
-                e.printStackTrace();
+        try {
+            if(CONNECTION == null || CONNECTION.isClosed()){
+                try {
+                    CONNECTION = DriverManager.getConnection(DATABASE_URL);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
         return CONNECTION;
     }

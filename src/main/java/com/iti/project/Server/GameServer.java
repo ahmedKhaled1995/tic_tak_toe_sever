@@ -1,5 +1,6 @@
 package com.iti.project.Server;
 
+import com.iti.project.Database.DatabaseManager;
 import com.iti.project.EntryPoint;
 import org.json.simple.JSONArray;
 import org.slf4j.Logger;
@@ -65,6 +66,7 @@ public class GameServer {
             for(GameHandler handler : handlers){
                 handler.closeConnection();
             }
+            DatabaseManager.closeConnection();
         } catch (IOException e) {
             e.printStackTrace();
         }
