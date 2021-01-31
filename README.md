@@ -5,13 +5,11 @@ Welcome to the TicTacToe GameServer, a simple Java application allowing users to
   (https://drive.google.com/drive/folders/1VGaFfkht6mgTYx83aW9iO4QkBtRY048d).<br/>Run the appliction, now you can start the server.<br/>
   the server is waiting the Gameclient to run.<br/>
   Download Game Client from this link (https://github.com/ahmedKhaled1995/tic_tak_toe_client_ui_final)
-
 # Built With
   •	JSON-Simple 
   •	Sqlite 
   •	JavaFX 
   •	Maven
-  
 # Authors
 ITI Team :<br/>
 Ahmed khaled<br/>
