@@ -1,5 +1,7 @@
 package com.iti.project.Database;
 
+import org.json.simple.JSONObject;
+
 public class GameResource {
 
     private int id;
@@ -7,13 +9,18 @@ public class GameResource {
     private String playerTwo;
     private String board;
     private String state;
+    private int playerOneSave;
+    private int playerTwoSave;
 
-    public GameResource(int id, String playerOne, String playerTwo, String board, String state) {
+    public GameResource(int id, String playerOne, String playerTwo,
+                        String board, String state, int playerOneSave, int playerTwoSave) {
         this.id = id;
         this.playerOne = playerOne;
         this.playerTwo = playerTwo;
         this.board = board;
         this.state = state;
+        this.playerOneSave = playerOneSave;
+        this.playerTwoSave = playerTwoSave;
     }
 
     public int getId() {
@@ -54,5 +61,31 @@ public class GameResource {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public int getPlayerOneSave() {
+        return playerOneSave;
+    }
+
+    public void setPlayerOneSave(int playerOneSave) {
+        this.playerOneSave = playerOneSave;
+    }
+
+    public int getPlayerTwoSave() {
+        return playerTwoSave;
+    }
+
+    public void setPlayerTwoSave(int playerTwoSave) {
+        this.playerTwoSave = playerTwoSave;
+    }
+
+    public JSONObject toJson(){
+        JSONObject gameJson = new JSONObject();
+        gameJson.put("id", this.id);
+        gameJson.put("playerOne", this.playerOne);
+        gameJson.put("playerTwo", this.playerTwo);
+        //gameJson.put("board", this.board);
+        //gameJson.put("state", this.state);
+        return gameJson;
     }
 }

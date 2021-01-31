@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GameHandler {
@@ -151,6 +152,29 @@ public class GameHandler {
             }else{
                 handleGameRejection(this.player.getUserName() + " declined the game!", opponentName);
             }
+        }else if(type.equals("getSavedGames")){
+            List<GameResource> userSavedGames = GAME_DAO.getPlayerGames(this.player.getUserName());
+            JSONArray games = new JSONArray();
+            for(GameResource gameResource : userSavedGames){
+                games.add(gameResource.toJson());
+            }
+            JSONObject sendToClient = new JSONObject();
+            sendToClient.put("type", "savedGamesList");
+            sendToClient.put("games", games);
+            this.ps.println(sendToClient.toJSONString());
+        }else if(type.equals("getSavedGame")){
+            int savedGameId = Integer.parseInt(replyJson.get("savedGameId").toString());
+            GameResource gameResource = GAME_DAO.getSavedGame(savedGameId);
+            JSONObject sendToClient = new JSONObject();
+            sendToClient.put("type", "savedGame");
+            sendToClient.put("playerOneName", gameResource.getPlayerOne());
+            sendToClient.put("playerTwoName", gameResource.getPlayerTwo());
+            sendToClient.put("board", gameResource.getBoard());
+            sendToClient.put("state", gameResource.getState());
+            this.ps.println(sendToClient.toJSONString());
+        }else if(type.equals("saveGame")){
+            int gameId = Integer.parseInt(replyJson.get("gameId").toString());
+            GAME_MAP.get(gameId).setSaveGame(this.player.getUserName());
         }
     }
 
@@ -317,10 +341,9 @@ public class GameHandler {
         JSONObject board = game.getGameBoard();
         JSONObject gameStatus = game.getStatus();
         GameResource gameResource = new GameResource(0, game.getPlayerOne(),
-                game.getPlayerTwo(), board.toJSONString(), gameStatus.toJSONString());
+                game.getPlayerTwo(), board.toJSONString(), gameStatus.toJSONString(),
+                game.getPlayerOneSaveGame(), game.getPlayerTwoSaveGame());
         GAME_DAO.addGame(gameResource);
-        //logger.info(board.toJSONString());
-        //logger.info(gameStatus.toJSONString());
     }
 
     /** Handles game rejection, note if opponent is null, that means game was rejected

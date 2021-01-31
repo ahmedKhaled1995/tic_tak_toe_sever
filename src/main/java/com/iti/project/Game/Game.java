@@ -7,6 +7,8 @@ public class Game {
     private final int gameId;
     private final String playerOne;
     private final String playerTwo;
+    private int playerOneSaveGame;
+    private int playerTwoSaveGame;
     private String winner;
     private String loser;
     private boolean playerOneTurn;  // At the start of the game, 'playerOne' always starts
@@ -21,6 +23,8 @@ public class Game {
         this.gameId = gameId;
         this.playerOne = playerOne;
         this.playerTwo = playerTwo;
+        this.playerOneSaveGame = 0;
+        this.playerTwoSaveGame = 0;
         this.board = new int[]{0,0,0,0,0,0,0,0,0};  // button id is array index, 'X' or 'O' is the array element
         this.gameValues = new JSONObject();
         this.playerOneTurn = true;  // 'playerOne' is 'X', 'playerTwo' is 'O'
@@ -176,5 +180,23 @@ public class Game {
             status.put("gameComplete", "false");
         }
         return status;
+    }
+
+    public void setSaveGame(String userWhoWantsToSave){
+        if(userWhoWantsToSave.equals(this.playerOne)){
+            this.playerOneSaveGame = 1;
+            //System.out.println(this.playerOne + " saved game");
+        }else{
+            this.playerTwoSaveGame = 1;
+            //System.out.println(this.playerTwo + " saved game");
+        }
+    }
+
+    public int getPlayerOneSaveGame(){
+        return this.playerOneSaveGame;
+    }
+
+    public int getPlayerTwoSaveGame(){
+        return this.playerTwoSaveGame;
     }
 }
