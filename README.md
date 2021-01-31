@@ -8,7 +8,7 @@ Welcome to the TicTacToe GameServer, a simple Java application allowing users to
 # Built With
   •	JSON-Simple 
   •	Sqlite 
-  •	JavaFX 
+  •	Java
   •	Maven
 # Authors
 ITI Team :<br/>
@@ -16,4 +16,4 @@ Ahmed khaled<br/>
 Ahmed Zakria<br/>
 Shehab Essam<br/>
 Sondos Medhat<br/>
-Hager mohamed<br/>
+Hager Mohamed<br/>
