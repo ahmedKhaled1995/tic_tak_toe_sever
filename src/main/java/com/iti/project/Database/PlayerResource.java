@@ -18,16 +18,6 @@ public class PlayerResource {
     private int score;
     private Date lastLogin;
 
-    /** Temporary constructor, remove in final version*/
-    public PlayerResource(String userName, String password){
-        this();
-        this.userName = userName;   // unique
-        this.password = password;
-        this.name = "name";  // not unique
-        this.email = this.userName +"@test.com"; //unique
-        this.gender = "M/F";
-    }
-
     public PlayerResource(){
         this.id = -1;
         this.name = null;

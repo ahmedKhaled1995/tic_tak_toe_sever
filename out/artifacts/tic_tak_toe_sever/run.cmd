@@ -1,0 +1,1 @@
+java -jar tic_tak_toe_sever.jar

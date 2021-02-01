@@ -1,0 +1,28 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="tic_tak_toe_sever">
+    <output-path>$PROJECT_DIR$/out/artifacts/tic_tak_toe_sever</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="com.iti.project.EntryPoint" />
+        <option name="description" value="" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="title" value="" />
+        <option name="vendor" value="" />
+        <option name="version" value="" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="tic_tak_toe_sever.jar">
+        <element id="module-output" name="tic_tak_toe_sever" />
+      </element>
+      <element id="library" level="project" name="Maven: com.googlecode.json-simple:json-simple:1.1.1" />
+      <element id="library" level="project" name="Maven: commons-codec:commons-codec:1.14" />
+      <element id="library" level="project" name="Maven: junit:junit:4.10" />
+      <element id="library" level="project" name="Maven: log4j:log4j:1.2.17" />
+      <element id="library" level="project" name="Maven: org.hamcrest:hamcrest-core:1.1" />
+      <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.30" />
+      <element id="library" level="project" name="Maven: org.slf4j:slf4j-log4j12:1.7.30" />
+      <element id="library" level="project" name="Maven: org.xerial:sqlite-jdbc:3.34.0" />
+    </root>
+  </artifact>
+</component>
