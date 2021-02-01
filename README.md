@@ -6,10 +6,12 @@ Welcome to the TicTacToe GameServer, a simple Java application allowing users to
   the server is waiting the Gameclient to run.<br/>
   Download Game Client from this link (https://github.com/ahmedKhaled1995/tic_tak_toe_client_ui_final)
 # Built With
-  •	JSON-Simple 
-  •	Sqlite 
-  •	Java
-  •	Maven
+  •	JSON-Simple <br/>
+  •	Sqlite <br/>
+  •	Java<br/>
+  •	Maven<br/>
+# Database Schema
+ ![](db/dbSchema.png)
 # Authors
 ITI Team :<br/>
 Ahmed khaled<br/>
